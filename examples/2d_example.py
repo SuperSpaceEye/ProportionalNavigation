@@ -12,7 +12,6 @@ if __name__ == "__main__":
 
     pursuer = pn.HeadingVelocity2d(45, 0, 0, g * 3)
     target = pn.HeadingVelocity2d(180, 100, 50, g)
-    options = pn.PNOptions(return_R=True, return_Vc=True)
     dt = 1. / 20
     N = 3
 
@@ -21,10 +20,10 @@ if __name__ == "__main__":
     terminate = False
     t = 0
 
-    log = {'pursuer': {'x': [], 'y': []}, 'target': {'x': [], 'y': []}}
+    log = {'pursuer': [], 'target': []}
     while not terminate:
-        ret = pn.pure_2d(pursuer, target, N=N, options=options)
-        # ret = PN.ZEM_2d(pursuer, target, N=N, options=options)
+        ret = pn.pure_2d(pursuer, target, N)
+        # ret = PN.ZEM_2d(pursuer, target, N)
         nL = ret['nL']
         R = ret['R']
 
@@ -41,24 +40,21 @@ if __name__ == "__main__":
 
         pursuer.psi = pursuer.psi + np.rad2deg(dt * psipd)
 
-        # print(np.rad2deg(psipd * dt))
-
         target.psi = np.cos(t * 5)
 
-        log['pursuer']['x'].append(pursuer.x)
-        log['pursuer']['y'].append(pursuer.y)
-        log['target']['x'].append(target.x)
-        log['target']['y'].append(target.y)
-    print(target.xd, N, t)
+        log['pursuer'].append((pursuer.x, pursuer.y))
+        log['target'].append((target.x, target.y))
 
-    distance = [sqrt((x1 - x2)**2 + (y1 - y2)**2) for (x1, y1), (x2, y2) in
-                zip(zip(log["pursuer"]["x"], log["pursuer"]["y"]), zip(log["target"]["x"], log["target"]["y"]))]
-
-    # plt.plot(distance)
+    distance = [sqrt((x1 - x2)**2 + (y1 - y2)**2)for (x1, y1), (x2, y2) in zip(log["pursuer"], log["target"])]
     print(min(distance))
 
-    # plt.plot(log['pursuer']['x'], log['pursuer']['y'])
-    plt.scatter(log['pursuer']['x'], log['pursuer']['y'], c=range(len(distance)))
-    plt.scatter(log['target']['x'], log['target']['y'], c=range(len(distance)))
+    px, py = [], []
+    for x, y in log["pursuer"]: px.append(x); py.append(y)
+
+    tx, ty = [], []
+    for x, y in log["target"]: tx.append(x); ty.append(y)
+
+    plt.scatter(px, py, c=range(len(distance)))
+    plt.scatter(tx, ty, c=range(len(distance)))
     plt.colorbar()
     plt.show()
