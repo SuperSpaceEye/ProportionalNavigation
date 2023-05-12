@@ -17,19 +17,17 @@ if __name__ == "__main__":
 
     max_sim_time = 200
 
-    terminate = False
     t = 0
 
     log = {'pursuer': [], 'target': []}
-    while not terminate:
+    while True:
         ret = pn.ZEM_3d(pursuer, target, N=N)
-        # ret = PN.ZEM_2d(pursuer, target, N=N, options=options)
         nL = ret['nL']
         R = ret['R']
 
         t = t + dt
         if R <= 1 or t > max_sim_time:
-            terminate = True
+            break
 
         pursuer.pos += pursuer.vel * dt
         pursuer.pos[1] -= g * dt

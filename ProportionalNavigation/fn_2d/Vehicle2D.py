@@ -5,22 +5,27 @@ class Vehicle2d(object):
     pass
 
 
+def rot_to_unit(psi):
+    return np.array([
+        np.cos(psi),
+        np.sin(psi)
+    ], dtype=float)
+
+
 class HeadingVelocity2d(Vehicle2d):
     def __init__(self,psi,x,y,V):
         self._psi = psi # Heading angle relative to global ref frame (x = north, y = east) in DEGREES
-        self.x = x
-        self.y = y
         self.V = V
-        self.xd = V * np.cos(np.deg2rad(psi))
-        self.yd = V * np.sin(np.deg2rad(psi))
+        self.pos = np.array([x, y], dtype=float)
+        self.vel = V * rot_to_unit(psi)
+
     @property
     def psi(self):
         return self._psi
     @psi.setter
     def psi(self, value):
         self._psi = value
-        self.xd = self.V * np.cos(np.deg2rad(self._psi))
-        self.yd = self.V * np.sin(np.deg2rad(self._psi))
+        self.vel = rot_to_unit(self._psi) * self.V
 
 
 class GlobalVelocity2d(Vehicle2d):
@@ -30,6 +35,18 @@ class GlobalVelocity2d(Vehicle2d):
         self.xd = xd
         self.yd = yd
 
+        self.pos = np.array([x, y], dtype=float)
+        self.vel = np.array([xd, yd], dtype=float)
+        self._psi = None
+        self._psi = self.psi
+        self.V = sum(self.vel)
+
     @property
     def psi(self):
-        return np.rad2deg(np.arccos(self.xd/np.sqrt(self.xd*self.xd + self.yd*self.yd)))
+        if self._psi == None:
+            self._psi = np.arccos(self.vel[0]/np.sqrt(self.vel[0]*self.vel[0] + self.vel[1]*self.vel[1]))
+        return self._psi
+    @psi.setter
+    def psi(self, value):
+        self._psi = value
+        self.vel = rot_to_unit(self._psi) * self.V

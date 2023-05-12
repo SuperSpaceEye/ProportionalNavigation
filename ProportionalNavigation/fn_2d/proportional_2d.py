@@ -2,50 +2,50 @@ import numpy as np
 
 from ProportionalNavigation.exceptions import InvalidProportionalGainError, OutOfBoundsRangeError
 
+
 def pure_2d(pursuer, target, N=3):
     if N <= 0: raise InvalidProportionalGainError(N)
 
-    R1 = (target.x - pursuer.x) ** 2 + (target.y - pursuer.y) ** 2
-    R = np.sqrt(R1)
+    dR = target.pos - pursuer.pos
+    dV = target.vel - pursuer.vel
+
+    R_squared = dR.dot(dR)
+    R = np.sqrt(R_squared)
 
     if R <= 0: raise OutOfBoundsRangeError(R)
 
-    Rdot = ((target.x - pursuer.x) * (target.xd - pursuer.xd) + (
-            target.y - pursuer.y) * (target.yd - pursuer.yd)) / R
-    Vc = -Rdot
-
-    lamd = ((target.x - pursuer.x) * (target.yd - pursuer.yd) - (
-            target.y - pursuer.y) * (target.xd - pursuer.xd)) / R1
+    # Vc = -(dR[0] * dV[0] + dR[1] * dV[1]) / R
+    Vc = -dR.dot(dV.T) / R
+    lamd = (dR[0] * dV[1] - dR[1] * dV[0]) / R_squared
 
     nL = N * lamd * Vc
 
     return {
-        "R":R,
-        "Vc":Vc,
-        "lamdad":lamd,
-        "nL":nL
+        "R": R,
+        "Vc": Vc,
+        "lamdad": lamd,
+        "nL": nL
     }
 
 
 def ZEM_2d(pursuer, target, N=3):
     if N <= 0: raise InvalidProportionalGainError(N)
 
-    R1 = (target.x - pursuer.x) ** 2 + (target.y - pursuer.y) ** 2
-    R = np.sqrt(R1)
+    dR = target.pos - pursuer.pos
+    dV = target.vel - pursuer.vel
+
+    R_squared = dR.dot(dR)
+    R = np.sqrt(R_squared)
 
     if R <= 0: raise OutOfBoundsRangeError(R)
 
-    V = np.sqrt((target.xd - pursuer.xd) ** 2 + (target.yd - pursuer.yd) ** 2)
-
+    V = np.sqrt(dV.dot(dV))
     t_go = R / V
 
-    ZEM_x = target.x - pursuer.x + (target.xd - pursuer.xd) * t_go
-    ZEM_y = target.y - pursuer.y + (target.yd - pursuer.yd) * t_go
+    lamd = (dR[0] * dV[1] - dR[1] * dV[0]) / R_squared
 
-    lamd = ((target.x - pursuer.x) * (target.yd - pursuer.yd) - (
-            target.y - pursuer.y) * (target.xd - pursuer.xd)) / R1
-
-    ZEM_plos = -ZEM_x * np.sin(lamd) + ZEM_y * np.cos(lamd)
+    ZEM = dR + dV * t_go
+    ZEM_plos = -ZEM[0] * np.sin(lamd) + ZEM[1] * np.cos(lamd)
 
     nL = (N * ZEM_plos) / (t_go*t_go)
 
@@ -53,5 +53,6 @@ def ZEM_2d(pursuer, target, N=3):
         "R":R,
         "t_go":t_go,
         "nL":nL,
+        "ZEM":ZEM,
         "ZEM_plos":ZEM_plos,
     }

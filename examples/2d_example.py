@@ -10,10 +10,10 @@ sqrt = math.sqrt
 if __name__ == "__main__":
     g = 10
 
-    pursuer = pn.HeadingVelocity2d(45, 0, 0, g * 3)
-    target = pn.HeadingVelocity2d(180, 100, 50, g)
+    pursuer = pn.HeadingVelocity2d(np.deg2rad(45), 0, 0, g * 3)
+    target = pn.HeadingVelocity2d(np.deg2rad(180), 100, 50, g)
     dt = 1. / 20
-    N = 3
+    N = 4
 
     max_sim_time = 200
 
@@ -21,29 +21,28 @@ if __name__ == "__main__":
     t = 0
 
     log = {'pursuer': [], 'target': []}
-    while not terminate:
+    while True:
         ret = pn.pure_2d(pursuer, target, N)
-        # ret = PN.ZEM_2d(pursuer, target, N)
+        # ret = pn.ZEM_2d(pursuer, target, N)
         nL = ret['nL']
         R = ret['R']
 
         t = t + dt
         if R <= 1 or t > max_sim_time:
-            terminate = True
+            break
 
         psipd = nL / pursuer.V
 
-        pursuer.x += pursuer.xd * dt
-        pursuer.y += pursuer.yd * dt - g * dt
-        target.x += target.xd * dt
-        target.y += target.yd * dt
+        pursuer.pos += pursuer.vel * dt
+        target.pos  += target.vel * dt
+        pursuer.pos[1] -= g * dt
 
-        pursuer.psi = pursuer.psi + np.rad2deg(dt * psipd)
+        pursuer.psi = pursuer.psi + dt * psipd
 
         target.psi = np.cos(t * 5)
 
-        log['pursuer'].append((pursuer.x, pursuer.y))
-        log['target'].append((target.x, target.y))
+        log['pursuer'].append(tuple(pursuer.pos))
+        log['target'].append(tuple(target.pos))
 
     distance = [sqrt((x1 - x2)**2 + (y1 - y2)**2)for (x1, y1), (x2, y2) in zip(log["pursuer"], log["target"])]
     print(min(distance))
