@@ -1,3 +1,5 @@
+# Perfect instant control
+
 import ProportionalNavigation.fn_2d as pn
 import matplotlib.pyplot as plt
 import numpy as np

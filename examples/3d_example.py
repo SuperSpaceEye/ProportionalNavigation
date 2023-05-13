@@ -1,3 +1,5 @@
+# Perfect instant control
+
 import ProportionalNavigation.fn_3d as pn
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,15 +13,15 @@ if __name__ == "__main__":
     g = 10
 
     pursuer = pn.HeadingVelocity3d(np.deg2rad(45), 0, np.array([0, 0, 0]), g * 3)
-    target = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([100, 100, 0]), g)
+    target = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([100, 100, 0]), g*2)
     dt = 1. / 20
-    N = 3
+    N = 5
 
     max_sim_time = 200
 
     t = 0
 
-    log = {'pursuer': [], 'target': []}
+    log = {'pursuer': [], 'target': [], "pursuer_vel":[], "pursuer_acc":[]}
     while True:
         ret = pn.ZEM_3d(pursuer, target, N=N)
         nL = ret['nL']
@@ -41,6 +43,8 @@ if __name__ == "__main__":
 
         log["pursuer"].append(list(pursuer.pos))
         log['target'].append(list(target.pos))
+        log["pursuer_vel"].append(np.sqrt(pursuer.vel.dot(pursuer.vel)))
+        log["pursuer_acc"].append(np.sqrt((nL*dt).dot(nL*dt)))
 
     distance = [sqrt((x1 - x2)**2 + (y1 - y2)**2) + (z1-z2)**2 for (x1, y1, z1), (x2, y2, z2) in
                 zip(log["pursuer"], log["target"])]
@@ -59,4 +63,8 @@ if __name__ == "__main__":
     ax.scatter(px, pz, py, c=range(len(distance)), cmap=matplotlib.colormaps["Greens"])
     ax.scatter(tx, tz, ty, c=range(len(distance)), cmap=matplotlib.colormaps["Reds"])
 
+    plt.show()
+
+    plt.scatter(range(len(distance)), log["pursuer_vel"], c=log["pursuer_acc"])
+    plt.colorbar()
     plt.show()
