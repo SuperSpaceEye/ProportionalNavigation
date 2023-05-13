@@ -3,10 +3,3 @@ class InvalidProportionalGainError(Exception):
         self.N = N
         self.message = message
         super().__init__(self.message)
-
-
-class OutOfBoundsRangeError(Exception):
-    def __init__(self, R, message="Range is not greater than 0"):
-        self.R = R
-        self.message = message
-        super().__init__(self.message)

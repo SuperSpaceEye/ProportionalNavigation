@@ -1,6 +1,6 @@
 import numpy as np
 
-from ProportionalNavigation.exceptions import InvalidProportionalGainError, OutOfBoundsRangeError
+from ProportionalNavigation.exceptions import InvalidProportionalGainError
 
 
 def pure_2d(pursuer, target, N=3):
@@ -11,8 +11,6 @@ def pure_2d(pursuer, target, N=3):
 
     R_squared = dR.dot(dR)
     R = np.sqrt(R_squared)
-
-    if R <= 0: raise OutOfBoundsRangeError(R)
 
     # Vc = -(dR[0] * dV[0] + dR[1] * dV[1]) / R
     Vc = -dR.dot(dV.T) / R
@@ -36,8 +34,6 @@ def ZEM_2d(pursuer, target, N=3):
 
     R_squared = dR.dot(dR)
     R = np.sqrt(R_squared)
-
-    if R <= 0: raise OutOfBoundsRangeError(R)
 
     V = np.sqrt(dV.dot(dV))
     t_go = R / V

@@ -1,7 +1,6 @@
 import numpy as np
 
-from .Vehicle3D import Vehicle3d
-from ProportionalNavigation.exceptions import InvalidProportionalGainError, OutOfBoundsRangeError
+from ProportionalNavigation.exceptions import InvalidProportionalGainError
 
 def ZEM_3d(pursuer, target, N=3):
     if N <= 0: raise InvalidProportionalGainError(N)
