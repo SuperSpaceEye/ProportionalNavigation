@@ -2,7 +2,7 @@
 
 import ProportionalNavigation.fn_3d as pn
 import matplotlib.pyplot as plt
-from simple_pid import PID
+from simple_pid import PID  # https://pypi.org/project/simple-pid/
 import numpy as np
 import math
 
