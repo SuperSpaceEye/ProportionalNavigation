@@ -46,10 +46,8 @@ modif = 100. # allows pid finer control but makes it slower to respond
 limits = (np.deg2rad(-22.5) * modif, np.deg2rad(22.5) * modif) # simple_pid outputs only integers for some reason
 
 max_sim_time = 40  # maximum sim time
-max_change_time = 10  # not in "real" time but in update ticks. If tick_passed > max_change_time then force calculate next angles
 
 R_min = 5  # minimum distance between target and pursuer before terminating
-
 
 def pi_clip(angle):
     if angle > 0:
@@ -80,10 +78,14 @@ yaw_ar = 0
 
 log = {'pursuer': [], 'target': [], "pursuer_vel":[], "pursuer_acc":[]}
 while True:
-    if achieved_rot:
-        ret = pn.ZEM_3d(pursuer, target, N=N)
-        nL = ret['nL']
-        R = ret['R']
+    ret = pn.ZEM_3d(pursuer, target, N=N)
+    nL = ret['nL']
+    R = ret['R']
+
+    log["pursuer"].append(list(pursuer.pos))
+    log['target'].append(list(target.pos))
+    log["pursuer_vel"].append(np.sqrt(pursuer.vel.dot(pursuer.vel)))
+    log["pursuer_acc"].append(pursuer.V)
 
     t = t + dt
     if R <= R_min or t > max_sim_time:
@@ -97,9 +99,8 @@ while True:
     target.pitch = np.cos(t / 5)
 
 
-    if achieved_rot:
-        new_yaw, new_pitch = get_angles(nL*dt)
-        pitch_pid.set_starting(new_pitch); yaw_pid.set_starting(new_yaw)
+    new_yaw, new_pitch = get_angles(nL*dt)
+    pitch_pid.set_starting(new_pitch); yaw_pid.set_starting(new_yaw)
     pitch_gimbal, yaw_gimbal = pitch_pid(pursuer.pitch)/modif, yaw_pid(pursuer.yaw)/modif
 
     # print(np.rad2deg(yaw_gimbal))
@@ -113,19 +114,9 @@ while True:
     pursuer.pitch = pi_clip(pursuer.pitch)
     pursuer.yaw   = pi_clip(pursuer.yaw)
 
-    if abs(pursuer.pitch - new_pitch) < math.radians(5) and abs(pursuer.yaw - new_yaw) < math.radians(5) \
-            or change_ticks >= max_change_time:
-        achieved_rot = True
-        change_ticks = 0
-
     change_ticks += 1
 
     pursuer.V = abs(np.cos(pitch_gimbal) * np.cos(yaw_gimbal)) * pursuer_v
-
-    log["pursuer"].append(list(pursuer.pos))
-    log['target'].append(list(target.pos))
-    log["pursuer_vel"].append(np.sqrt(pursuer.vel.dot(pursuer.vel)))
-    log["pursuer_acc"].append(pursuer.V)
 
 distance = [sqrt((x1 - x2)**2 + (y1 - y2)**2) + (z1-z2)**2 for (x1, y1, z1), (x2, y2, z2) in
             zip(log["pursuer"], log["target"])]
@@ -146,6 +137,6 @@ ax.scatter(tx, tz, ty, c=range(len(distance)), cmap=matplotlib.colormaps["Reds"]
 
 plt.show()
 
-plt.scatter(range(len(distance)), log["pursuer_vel"], c=log["pursuer_acc"])
-plt.colorbar()
-plt.show()
+# plt.scatter(range(len(distance)), log["pursuer_vel"], c=log["pursuer_acc"])
+# plt.colorbar()
+# plt.show()
