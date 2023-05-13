@@ -1,4 +1,4 @@
-# Control through gimbal and pid with angular inertion
+# Control through gimbal and pid with angular inertia
 
 import ProportionalNavigation.fn_3d as pn
 import matplotlib.pyplot as plt
