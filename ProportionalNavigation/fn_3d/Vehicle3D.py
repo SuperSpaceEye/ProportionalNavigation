@@ -1,42 +1,37 @@
 import numpy as np
 
 
-class Vehicle3d:
-    pass
-
-
-def rot_to_unit(psi, theta):
+def rot_to_unit(yaw, pitch):
     return np.array([
-            np.cos(psi) * np.cos(theta),
-            np.sin(psi) * np.cos(theta),
-            np.sin(theta)
+            np.cos(yaw) * np.cos(pitch),
+            np.sin(yaw) * np.cos(pitch),
+            np.sin(pitch)
         ], dtype=float)
 
-
-class HeadingVelocity3d(Vehicle3d):
+class HeadingVelocity3d:
     # yaw, pitch
-    def __init__(self, psi, theta, pos, V):
-        self._psi = psi
-        self._theta = theta
+    def __init__(self, yaw, pitch, pos, V):
+        self._yaw = yaw
+        self._pitch = pitch
         self.pos = np.array(pos, dtype=float)
-        self.vel = rot_to_unit(psi, theta) * V
+        self.vel = rot_to_unit(yaw, pitch) * V
         self._V = V
 
     @property
-    def psi(self):
-        return self._psi
-    @psi.setter
-    def psi(self, value):
-        self._psi = value
-        self.vel = rot_to_unit(value, self.theta) * self.V
+    def yaw(self):
+        return self._yaw
+    @yaw.setter
+    def yaw(self, value):
+        self._yaw = value
+        self.vel = rot_to_unit(value, self.pitch) * self.V
 
     @property
-    def theta(self):
-        return self._theta
-    @theta.setter
-    def theta(self, value):
-        self._theta = value
-        self.vel = rot_to_unit(self.psi, value) * self.V
+    def pitch(self):
+        return self._pitch
+    @pitch.setter
+    def pitch(self, value):
+        self._pitch = value
+        self.vel = rot_to_unit(self.yaw, value) * self.V
 
     @property
     def V(self):
@@ -44,41 +39,41 @@ class HeadingVelocity3d(Vehicle3d):
     @V.setter
     def V(self, value):
         self._V = value
-        self.vel = rot_to_unit(self.psi, self.theta) * value
+        self.vel = rot_to_unit(self.yaw, self.pitch) * value
 
 
-class GlobalVelocity3d(Vehicle3d):
+class GlobalVelocity3d:
     # yaw, pitch
-    def __init__(self, psi, theta, pos, V):
-        self._psi = psi
-        self._theta = theta
+    def __init__(self, pos, vel):
         self.pos = np.array(pos, dtype=float)
-        self.vel = np.array(V, dtype=float)
-        self._psi, self._theta = self.get_angles()
-        self._V = V / rot_to_unit(self._psi, self._theta)
+        self.vel = np.array(vel, dtype=float)
+        self._yaw, self._pitch = self.get_angles()
+        self._V = np.sqrt(self.vel.dot(self.vel))
 
     def get_angles(self):
-        theta = np.arcsin(self.vel[2])
-        psi = np.arcsin(self.vel[1]/np.cos(theta))
-        return psi, theta
+        v = self.vel
+
+        yaw = np.arctan2(v[1], v[0])
+        pitch = np.arctan2(v[2], np.sqrt(v[0]*v[0] + v[1]*v[1]))
+        return yaw, pitch
 
     @property
-    def psi(self):
-        return self._psi
+    def yaw(self):
+        return self._yaw
 
-    @psi.setter
-    def psi(self, value):
-        self._psi = value
-        self.vel = rot_to_unit(value, self.theta) * self.V
+    @yaw.setter
+    def yaw(self, value):
+        self._yaw = value
+        self.vel = rot_to_unit(value, self.pitch) * self.V
 
     @property
-    def theta(self):
-        return self._theta
+    def pitch(self):
+        return self._pitch
 
-    @theta.setter
-    def theta(self, value):
-        self._theta = value
-        self.vel = rot_to_unit(self.psi, value) * self.V
+    @pitch.setter
+    def pitch(self, value):
+        self._pitch = value
+        self.vel = rot_to_unit(self.yaw, value) * self.V
 
     @property
     def V(self):
@@ -87,4 +82,4 @@ class GlobalVelocity3d(Vehicle3d):
     @V.setter
     def V(self, value):
         self._V = value
-        self.vel = rot_to_unit(self.psi, self.theta) * value
+        self.vel = rot_to_unit(self.yaw, self.pitch) * value

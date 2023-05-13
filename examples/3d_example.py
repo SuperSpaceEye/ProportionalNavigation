@@ -36,8 +36,8 @@ if __name__ == "__main__":
 
         pursuer.vel += nL * dt
 
-        target.psi = np.cos(t * 5)
-        target.theta = np.cos(t/2.)
+        target.yaw = np.cos(t * 5)
+        target.pitch = np.cos(t / 2.)
 
         log["pursuer"].append(list(pursuer.pos))
         log['target'].append(list(target.pos))
