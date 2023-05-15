@@ -64,8 +64,6 @@ yaw_pid   = PID(Kp, Kl, Kd, 0, sample_time=dt, output_limits=limits, error_map=p
 
 change_ticks = 0
 
-achieved_rot = True  # is rotation achieved? if yes, calculate next angles
-
 ret = None
 nL = None
 R = None
@@ -84,8 +82,7 @@ while True:
 
     log["pursuer"].append(list(pursuer.pos))
     log['target'].append(list(target.pos))
-    log["pursuer_vel"].append(np.sqrt(pursuer.vel.dot(pursuer.vel)))
-    log["pursuer_acc"].append(pursuer.V)
+    log["pursuer_vel"].append(pursuer.V)
 
     t = t + dt
     if R <= R_min or t > max_sim_time:
@@ -102,8 +99,6 @@ while True:
     new_yaw, new_pitch = get_angles(nL*dt)
     pitch_pid.set_starting(new_pitch); yaw_pid.set_starting(new_yaw)
     pitch_gimbal, yaw_gimbal = pitch_pid(pursuer.pitch)/modif, yaw_pid(pursuer.yaw)/modif
-
-    # print(np.rad2deg(yaw_gimbal))
 
     pursuer.pitch += pitch_ar
     pursuer.yaw   += yaw_ar
@@ -137,6 +132,6 @@ ax.scatter(tx, tz, ty, c=range(len(distance)), cmap=matplotlib.colormaps["Reds"]
 
 plt.show()
 
-# plt.scatter(range(len(distance)), log["pursuer_vel"], c=log["pursuer_acc"])
+# plt.scatter(range(len(distance)), log["pursuer_vel"])
 # plt.colorbar()
 # plt.show()
