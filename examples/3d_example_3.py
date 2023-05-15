@@ -1,4 +1,4 @@
-# Control through gimbal and pid with angular inertia
+# Control through gimbal and pid with angular inertia, lagged observations
 
 import ProportionalNavigation.fn_3d as pn
 import matplotlib.pyplot as plt
@@ -37,9 +37,11 @@ pursuer_v = g * 3
 target_v  = g
 
 pursuer = pn.HeadingVelocity3d(np.deg2rad(90), 0, np.array([0, 0, 0]), pursuer_v)
-target = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([100, 100, 0]), target_v)
+lagged_pursuer = pn.HeadingVelocity3d(np.deg2rad(90), 0, np.array([0, 0, 0]), pursuer_v)
+actual_target = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([100, 100, 0]), target_v)
+lagged_target = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([100, 100, 0]), target_v)
 dt = 1. / 20
-N = 5
+N = 3
 
 Kp, Kl, Kd = 1, 1, 1 # parameters of pid
 modif = 100. # allows pid finer control but makes it slower to respond
@@ -74,15 +76,29 @@ new_pitch = None
 pitch_ar = 0
 yaw_ar = 0
 
-log = {'pursuer': [], 'target': [], "pursuer_vel":[], "pursuer_acc":[]}
+counter = 0
+
+log = {'pursuer': [], 'target': [], "lagged_target":[], "lagged_pursuer":[], "pursuer_vel":[]}
 while True:
-    ret = pn.ZEM_3d(pursuer, target, N=N)
+    if counter % 3 == 0:
+        lagged_target.pos = np.array(actual_target.pos)
+        lagged_target.vel = np.array(actual_target.vel)
+
+        lagged_pursuer.pos = np.array(pursuer.pos)
+        lagged_pursuer.vel = np.array(pursuer.vel)
+    else:
+        lagged_target.pos += lagged_target.vel * dt
+    counter+=1
+
+    ret = pn.ZEM_3d(lagged_pursuer, lagged_target, N=N)
     nL = ret['nL']
     R = ret['R']
 
     log["pursuer"].append(list(pursuer.pos))
-    log['target'].append(list(target.pos))
-    log["pursuer_vel"].append(pursuer.V)
+    log['target'].append(list(actual_target.pos))
+    log["lagged_target"].append(list(lagged_target.pos))
+    log["pursuer_vel"].append(np.sqrt(pursuer.vel.dot(pursuer.vel)))
+    log["lagged_pursuer"].append(list(lagged_pursuer.pos))
 
     t = t + dt
     if R <= R_min or t > max_sim_time:
@@ -92,9 +108,10 @@ while True:
     pursuer.pos += pursuer.vel * dt
     pursuer.pos[1] -= g * dt
 
-    target.pos += target.vel * dt
-    target.yaw = np.cos(t)
-    target.pitch = np.cos(t / 5)
+    actual_target.pos += actual_target.vel * dt
+    # actual_target.yaw = np.cos(t)
+    actual_target.pitch = np.cos(t / 2)
+
 
     # setting new targets and calculating gimbal
     new_yaw, new_pitch = get_angles(nL*dt)
@@ -105,12 +122,18 @@ while True:
     pursuer.pitch += pitch_ar
     pursuer.yaw   += yaw_ar
 
+    lagged_pursuer.pitch += pitch_ar
+    lagged_pursuer.yaw   += yaw_ar
+
     # simulating gimbal change of angular inertia
     pitch_ar += np.sin(pitch_gimbal) * pursuer_v * dt
     yaw_ar   += np.sin(yaw_gimbal)   * pursuer_v * dt
 
     pursuer.pitch = pi_clip(pursuer.pitch)
     pursuer.yaw   = pi_clip(pursuer.yaw)
+
+    lagged_pursuer.pitch = pi_clip(lagged_pursuer.pitch)
+    lagged_pursuer.yaw   = pi_clip(lagged_pursuer.yaw)
 
     change_ticks += 1
 
@@ -121,6 +144,11 @@ distance = [sqrt((x1 - x2)**2 + (y1 - y2)**2) + (z1-z2)**2 for (x1, y1, z1), (x2
 
 print(min(distance))
 
+actual = np.array(log["pursuer"])
+lagged = np.array(log["lagged_pursuer"])
+
+print(abs(sum(actual - lagged)) / len(actual))
+
 fig = plt.figure(figsize=(12, 12))
 ax = fig.add_subplot(projection="3d")
 
@@ -130,11 +158,12 @@ for x, y, z in log["pursuer"]: px.append(x); py.append(y); pz.append(z)
 tx, ty, tz = [], [], []
 for x, y, z in log["target"]: tx.append(x); ty.append(y); tz.append(z)
 
+# lx, ly, lz = [], [], []
+# for x, y, z in log["lagged_pursuer"]: lx.append(x); ly.append(y); lz.append(z)
+
 ax.scatter(px, pz, py, c=range(len(distance)), cmap=matplotlib.colormaps["Greens"])
 ax.scatter(tx, tz, ty, c=range(len(distance)), cmap=matplotlib.colormaps["Reds"])
+# ax.scatter(lx, lz, ly, c=range(len(distance)), cmap=matplotlib.colormaps["Blues"])
 
 plt.show()
 
-# plt.scatter(range(len(distance)), log["pursuer_vel"])
-# plt.colorbar()
-# plt.show()
