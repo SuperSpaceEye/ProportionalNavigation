@@ -2,6 +2,7 @@ import numpy as np
 
 from ProportionalNavigation.exceptions import InvalidProportionalGainError
 
+
 def ZEM_3d(pursuer, target, N=3):
     if N <= 0: raise InvalidProportionalGainError(N)
     dR = target.pos - pursuer.pos
@@ -10,7 +11,9 @@ def ZEM_3d(pursuer, target, N=3):
     R = np.sqrt(dR.dot(dR))
     V = np.sqrt(dV.dot(dV))
 
-    t_go = R / V # time to go
+    if V == 0: V = 1e16  # if target is stationary and initial speed is 0
+
+    t_go = R / V  # time to go
 
     ZEM_i = dR + dV * t_go  # ZEM at t
     LOS_u = dR / R  # LOS direction unit vector
@@ -21,8 +24,8 @@ def ZEM_3d(pursuer, target, N=3):
     return {
         "nL": nL,
         "R": R,
-        "V":V,
-        "t_go":t_go,
-        "ZEM_i":ZEM_i,
-        "ZEM_n":ZEM_n
+        "V": V,
+        "t_go": t_go,
+        "ZEM_i": ZEM_i,
+        "ZEM_n": ZEM_n
     }
