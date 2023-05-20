@@ -47,8 +47,8 @@ pursuer_physic = pn.HeadingVelocity3d(0, 0, np.array([200, 0, 100]), 0)
 # lagged_pursuer_phys = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([0, 0, 0]), 0)
 lagged_pursuer_phys = pursuer_physic
 
-actual_target = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([100, 100, 0]), target_v)
-lagged_target = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([100, 100, 0]), target_v)
+actual_target = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([0, 100, 0]), target_v)
+lagged_target = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([0, 100, 0]), target_v)
 
 dt = 1. / 20
 N = 5
