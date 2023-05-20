@@ -8,15 +8,6 @@ def ZEM_3d(pursuer, target, N=3):
     dR = target.pos - pursuer.pos
     dV = target.vel - pursuer.vel
 
-    mask = dR >= 0
-    mask = np.array(list(map(lambda x: -1 if x else 1, mask)))
-    dR = abs(dR)
-    # dV = abs(dV)
-
-    # dR[0], dR[2] = abs(dR[0]), abs(dR[2])
-    dV = dV * mask
-    # dV[0], dV[2] = abs(dV[0]), abs(dV[2])
-
     R = np.sqrt(dR.dot(dR))
     V = np.sqrt(dV.dot(dV))
 
