@@ -41,7 +41,7 @@ target_v = g * 0
 # rotation and acceleration direction
 pursuer_rot = pn.HeadingVelocity3d(np.deg2rad(90), 0, np.array([0, 0, 0]), 0)
 # velocity and position
-pursuer_physic = pn.HeadingVelocity3d(0, 0, np.array([200, 0, 100]), 0)
+pursuer_physic = pn.HeadingVelocity3d(0, 0, np.array([100, 0, 0]), 0)
 
 # lagged_pursuer_rot  = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([0, 0, 0]), 0)
 # lagged_pursuer_phys = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([0, 0, 0]), 0)
