@@ -39,9 +39,9 @@ pursuer_acc = g * 3
 target_v = g * 0
 
 # rotation and acceleration direction
-pursuer_rot = pn.HeadingVelocity3d(np.deg2rad(90), 0, np.array([150, 0, 0]), 0)
+pursuer_rot = pn.HeadingVelocity3d(np.deg2rad(90), 0, np.array([0, 0, 0]), 0)
 # velocity and position
-pursuer_physic = pn.HeadingVelocity3d(0, 0, np.array([150, 0, 0]), 0)
+pursuer_physic = pn.HeadingVelocity3d(0, 0, np.array([200, 0, 100]), 0)
 
 # lagged_pursuer_rot  = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([0, 0, 0]), 0)
 # lagged_pursuer_phys = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([0, 0, 0]), 0)
@@ -95,14 +95,14 @@ while True:
     # ========== Physics simulation ==========
     # simulating pursuer and target movement's
     pursuer_physic.pos += pursuer_physic.vel * dt
-    pursuer_physic.pos[1] -= g * dt
+    # pursuer_physic.pos[1] -= g * dt
 
     if pursuer_physic.pos[1] < 0:
         pursuer_physic.pos[1] = 0
 
     actual_target.pos += actual_target.vel * dt
     # actual_target.yaw = np.cos(t)
-    # actual_target.pitch = np.cos(t / 4)
+    actual_target.pitch = np.cos(t / 4)
 
     # simulating angular inertia
     pursuer_rot.pitch += pitch_ar
@@ -167,7 +167,7 @@ while True:
 
     change_ticks += 1
 
-distance = [sqrt((x1 - x2)**2 + (y1 - y2)**2) + (z1-z2)**2 for (x1, y1, z1), (x2, y2, z2) in
+distance = [sqrt((x1 - x2)**2 + (y1 - y2)**2 + (z1-z2)**2) for (x1, y1, z1), (x2, y2, z2) in
             zip(log["pursuer"], log["target"])]
 
 print(min(distance))

@@ -46,7 +46,7 @@ if __name__ == "__main__":
         log["pursuer_vel"].append(np.sqrt(pursuer.vel.dot(pursuer.vel)))
         log["pursuer_acc"].append(np.sqrt((nL*dt).dot(nL*dt)))
 
-    distance = [sqrt((x1 - x2)**2 + (y1 - y2)**2) + (z1-z2)**2 for (x1, y1, z1), (x2, y2, z2) in
+    distance = [sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2 + (z1 - z2) ** 2) for (x1, y1, z1), (x2, y2, z2) in
                 zip(log["pursuer"], log["target"])]
 
     print(min(distance))
