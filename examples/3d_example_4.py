@@ -36,12 +36,12 @@ drag = 0.99
 
 pursuer_acc = g * 3
 
-target_v = g
+target_v = g * 0
 
 # rotation and acceleration direction
-pursuer_rot = pn.HeadingVelocity3d(np.deg2rad(90), 0, np.array([0, 0, 0]), 0)
+pursuer_rot = pn.HeadingVelocity3d(np.deg2rad(90), 0, np.array([150, 0, 0]), 0)
 # velocity and position
-pursuer_physic = pn.HeadingVelocity3d(0, 0, np.array([20, 20, 20]), 0)
+pursuer_physic = pn.HeadingVelocity3d(0, 0, np.array([150, 0, 0]), 0)
 
 # lagged_pursuer_rot  = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([0, 0, 0]), 0)
 # lagged_pursuer_phys = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([0, 0, 0]), 0)
@@ -101,9 +101,8 @@ while True:
         pursuer_physic.pos[1] = 0
 
     actual_target.pos += actual_target.vel * dt
-    actual_target.yaw = np.cos(t)
-    actual_target.pitch = np.cos(t / 4)
-    # actual_target.V = 0
+    # actual_target.yaw = np.cos(t)
+    # actual_target.pitch = np.cos(t / 4)
 
     # simulating angular inertia
     pursuer_rot.pitch += pitch_ar

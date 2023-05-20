@@ -5,8 +5,8 @@ from ProportionalNavigation.exceptions import InvalidProportionalGainError
 
 def ZEM_3d(pursuer, target, N=3):
     if N <= 0: raise InvalidProportionalGainError(N)
-    dR = target.pos - pursuer.pos
-    dV = target.vel - pursuer.vel
+    dR = abs(target.pos - pursuer.pos)
+    dV = abs(target.vel - pursuer.vel)
 
     R = np.sqrt(dR.dot(dR))
     V = np.sqrt(dV.dot(dV))
