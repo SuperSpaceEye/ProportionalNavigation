@@ -29,8 +29,8 @@ def pure_2d(pursuer, target, N=3):
 def ZEM_2d(pursuer, target, N=3):
     if N <= 0: raise InvalidProportionalGainError(N)
 
-    dR = abs(target.pos - pursuer.pos)
-    dV = abs(target.vel - pursuer.vel)
+    dR = (target.pos - pursuer.pos)
+    dV = (target.vel - pursuer.vel)
 
     R_squared = dR.dot(dR)
     R = np.sqrt(R_squared)
