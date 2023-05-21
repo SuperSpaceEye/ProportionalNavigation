@@ -41,7 +41,7 @@ target_v = g * 0
 # rotation and acceleration direction
 pursuer_rot = pn.HeadingVelocity3d(np.deg2rad(90), 0, np.array([0, 0, 0]), 0)
 # velocity and position
-pursuer_physic = pn.HeadingVelocity3d(0, 0, np.array([100, 0, 0]), 0)
+pursuer_physic = pn.HeadingVelocity3d(0, 0, np.array([-100, 0, 50]), 0)
 
 # lagged_pursuer_rot  = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([0, 0, 0]), 0)
 # lagged_pursuer_phys = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([0, 0, 0]), 0)
@@ -90,15 +90,15 @@ yaw_ar = 0
 
 counter = 0
 
-log = {'pursuer': [], 'target': [], "lagged_target":[], "lagged_pursuer":[], "pursuer_vel":[], "t_go":[], "ZEM_i":[], "ZEM_n":[]}
+log = {'pursuer': [], 'target': [], "lagged_target":[], "lagged_pursuer":[], "pursuer_vel":[], "t_go":[], "ZEM_i":[], "ZEM_n":[], "ret":[]}
 while True:
     # ========== Physics simulation ==========
     # simulating pursuer and target movement's
     pursuer_physic.pos += pursuer_physic.vel * dt
     # pursuer_physic.pos[1] -= g * dt
 
-    if pursuer_physic.pos[1] < 0:
-        pursuer_physic.pos[1] = 0
+    # if pursuer_physic.pos[1] < 0:
+    #     pursuer_physic.pos[1] = 0
 
     actual_target.pos += actual_target.vel * dt
     # actual_target.yaw = np.cos(t)
@@ -123,6 +123,8 @@ while True:
     nL = ret['nL']
     R = ret['R']
 
+    log["ret"].append(ret)
+
     log["pursuer"].append(list(pursuer_physic.pos))
     log['target'].append(list(actual_target.pos))
     log["lagged_target"].append(list(lagged_target.pos))
@@ -139,6 +141,8 @@ while True:
 
     # setting new targets and calculating gimbal
     new_yaw, new_pitch = get_angles(nL)
+    # print(np.degrees(new_yaw), np.degrees(new_pitch))
+    # if ret["rotated"]: new_pitch = -new_pitch; new_yaw = -new_yaw
     pitch_pid.set_starting(new_pitch); yaw_pid.set_starting(new_yaw)
     pitch_gimbal, yaw_gimbal = pitch_pid(pursuer_rot.pitch) / modif, yaw_pid(pursuer_rot.yaw) / modif
 
@@ -191,12 +195,15 @@ for x, y, z in log["pursuer"]: px.append(x); py.append(y); pz.append(z)
 tx, ty, tz = [], [], []
 for x, y, z in log["target"]: tx.append(x); ty.append(y); tz.append(z)
 
-# lx, ly, lz = [], [], []
-# for x, y, z in log["lagged_pursuer"]: lx.append(x); ly.append(y); lz.append(z)
+lx, ly, lz = [], [], []
+for x, y, z in log["ZEM_n"]: lx.append(x); ly.append(y); lz.append(z)
 
 ax.scatter(px, pz, py, c=range(len(distance)), cmap=matplotlib.colormaps["Greens"])
 ax.scatter(tx, tz, ty, c=range(len(distance)), cmap=matplotlib.colormaps["Reds"])
-# ax.scatter(lx, lz, ly, c=range(len(distance)), cmap=matplotlib.colormaps["Blues"])
+ax.scatter(lx, lz, ly, c=range(len(distance)), cmap=matplotlib.colormaps["plasma"])
+ax.set_xlabel("x")
+ax.set_ylabel("y")
+ax.set_zlabel("z")
 
 plt.show()
 
@@ -213,9 +220,23 @@ ax[0][2].set_ylabel("distance")
 
 ax[1][0].plot(time, [np.sqrt(it.dot(it)) for it in log["ZEM_n"]])
 ax[1][0].set_ylabel("zero effort miss")
-
 ax[1][1].plot(time, [np.log2(np.sqrt(it.dot(it))) for it in log["ZEM_n"]])
 ax[1][1].set_ylabel("log2 zero effort miss")
+plt.show()
 
+x, y, z = [], [], []
+for ret in log["ret"]:
+    yaw, pitch = get_angles(ret["nL"])
+    _x = np.cos(yaw) * np.sin(pitch)
+    _y = np.sin(yaw) * np.sin(pitch)
+    _z = np.cos(pitch)
+
+    x.append(_x)
+    y.append(_y)
+    z.append(_z)
+
+fig = plt.figure(figsize=(12, 12))
+ax = fig.add_subplot(projection="3d")
+ax.scatter(x, y, z, c=range(len(distance)), cmap=matplotlib.colormaps["Greens"])
 plt.show()
 

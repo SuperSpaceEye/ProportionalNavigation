@@ -27,5 +27,4 @@ def ZEM_3d(pursuer, target, N=3):
         "t_go": t_go,
         "ZEM_i": ZEM_i,
         "ZEM_n": ZEM_n,
-        # "rotated":rotated
     }
