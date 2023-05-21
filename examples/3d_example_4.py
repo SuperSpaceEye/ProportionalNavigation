@@ -36,7 +36,7 @@ drag = 0.99
 
 pursuer_acc = g * 3
 
-target_v = g * 0
+target_v = g * 1
 
 # rotation and acceleration direction
 pursuer_rot = pn.HeadingVelocity3d(np.deg2rad(90), 0, np.array([0, 0, 0]), 0)
@@ -61,7 +61,7 @@ limits = (np.deg2rad(-22.5) * modif, np.deg2rad(22.5) * modif) # simple_pid outp
 
 max_sim_time = 20  # maximum sim time
 
-R_min = 3  # minimum distance between target and pursuer before terminating
+R_min = 5  # minimum distance between target and pursuer before terminating
 
 def pi_clip(angle):
     if angle > 0:
@@ -95,14 +95,14 @@ while True:
     # ========== Physics simulation ==========
     # simulating pursuer and target movement's
     pursuer_physic.pos += pursuer_physic.vel * dt
-    # pursuer_physic.pos[1] -= g * dt
+    pursuer_physic.pos[1] -= g * dt
 
     # if pursuer_physic.pos[1] < 0:
     #     pursuer_physic.pos[1] = 0
 
     actual_target.pos += actual_target.vel * dt
-    # actual_target.yaw = np.cos(t)
-    actual_target.pitch = np.cos(t / 4)
+    actual_target.yaw = np.cos(t)
+    actual_target.pitch = np.cos(t / 5)
 
     # simulating angular inertia
     pursuer_rot.pitch += pitch_ar
@@ -141,7 +141,6 @@ while True:
 
     # setting new targets and calculating gimbal
     new_yaw, new_pitch = get_angles(nL)
-    # print(np.degrees(new_yaw), np.degrees(new_pitch))
     pitch_pid.set_starting(new_pitch); yaw_pid.set_starting(new_yaw)
     pitch_gimbal, yaw_gimbal = pitch_pid(pursuer_rot.pitch) / modif, yaw_pid(pursuer_rot.yaw) / modif
 
@@ -184,12 +183,9 @@ for x, y, z in log["pursuer"]: px.append(x); py.append(y); pz.append(z)
 tx, ty, tz = [], [], []
 for x, y, z in log["target"]: tx.append(x); ty.append(y); tz.append(z)
 
-lx, ly, lz = [], [], []
-for x, y, z in log["ZEM_n"]: lx.append(x); ly.append(y); lz.append(z)
 
 ax.scatter(px, pz, py, c=range(len(distance)), cmap=matplotlib.colormaps["Greens"])
 ax.scatter(tx, tz, ty, c=range(len(distance)), cmap=matplotlib.colormaps["Reds"])
-ax.scatter(lx, lz, ly, c=range(len(distance)), cmap=matplotlib.colormaps["plasma"])
 ax.set_xlabel("x")
 ax.set_ylabel("y")
 ax.set_zlabel("z")
@@ -213,18 +209,29 @@ ax[1][1].plot(time, [np.log2(np.sqrt(it.dot(it))) for it in log["ZEM_n"]])
 ax[1][1].set_ylabel("log2 zero effort miss")
 plt.show()
 
-x, y, z = [], [], []
-for ret in log["ret"]:
-    yaw, pitch = get_angles(ret["nL"])
-    _x = np.cos(yaw) * np.sin(pitch)
-    _y = np.sin(yaw) * np.sin(pitch)
-    _z = np.cos(pitch)
-
-    x.append(_x)
-    y.append(_y)
-    z.append(_z)
-
 fig = plt.figure(figsize=(12, 12))
 ax = fig.add_subplot(projection="3d")
-ax.scatter(x, y, z, c=range(len(distance)), cmap=matplotlib.colormaps["plasma"])
+
+lx, ly, lz = [], [], []
+for x, y, z in log["ZEM_n"]: lx.append(x); ly.append(y); lz.append(z)
+ax.scatter(lx, lz, ly, c=range(len(distance)), cmap=matplotlib.colormaps["plasma"])
+ax.set_xlabel("x")
+ax.set_ylabel("y")
+ax.set_zlabel("z")
+plt.show()
+
+# x, y, z = [], [], []
+# for ret in log["ret"]:
+#     yaw, pitch = get_angles(ret["nL"])
+#     _x = np.cos(yaw) * np.sin(pitch)
+#     _y = np.sin(yaw) * np.sin(pitch)
+#     _z = np.cos(pitch)
+#
+#     x.append(_x)
+#     y.append(_y)
+#     z.append(_z)
+#
+# fig = plt.figure(figsize=(12, 12))
+# ax = fig.add_subplot(projection="3d")
+# ax.scatter(x, y, z, c=range(len(distance)), cmap=matplotlib.colormaps["plasma"])
 # plt.show()
