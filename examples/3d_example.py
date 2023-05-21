@@ -12,8 +12,8 @@ sqrt = math.sqrt
 if __name__ == "__main__":
     g = 10
 
-    pursuer = pn.HeadingVelocity3d(np.deg2rad(45), 0, np.array([200, 0, 0]), g * 3)
-    target = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([100, 100, 0]), g*0)
+    pursuer = pn.HeadingVelocity3d(np.deg2rad(45), 0, np.array([0, 0, 0]), g * 3)
+    target = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([100, 100, 100]), g*0)
     dt = 1. / 20
     N = 5
 
@@ -32,7 +32,7 @@ if __name__ == "__main__":
             break
 
         pursuer.pos += pursuer.vel * dt
-        # pursuer.pos[1] -= g * dt
+        pursuer.pos[1] -= g * dt
 
         target.pos += target.vel * dt
 

@@ -142,7 +142,6 @@ while True:
     # setting new targets and calculating gimbal
     new_yaw, new_pitch = get_angles(nL)
     # print(np.degrees(new_yaw), np.degrees(new_pitch))
-    # if ret["rotated"]: new_pitch = -new_pitch; new_yaw = -new_yaw
     pitch_pid.set_starting(new_pitch); yaw_pid.set_starting(new_yaw)
     pitch_gimbal, yaw_gimbal = pitch_pid(pursuer_rot.pitch) / modif, yaw_pid(pursuer_rot.yaw) / modif
 
@@ -175,16 +174,6 @@ distance = [sqrt((x1 - x2)**2 + (y1 - y2)**2 + (z1-z2)**2) for (x1, y1, z1), (x2
             zip(log["pursuer"], log["target"])]
 
 print(min(distance))
-
-# actual = np.array(log["pursuer"])
-# lagged = np.array(log["lagged_pursuer"])
-#
-# print("pursuer_diff", np.round(abs(sum(actual - lagged)) / len(actual)))
-#
-# actual = np.array(log["target"])
-# lagged = np.array(log["lagged_target"])
-#
-# print("target_diff", np.round(abs(sum(actual - lagged)) / len(actual)))
 
 fig = plt.figure(figsize=(12, 12))
 ax = fig.add_subplot(projection="3d")
@@ -237,6 +226,5 @@ for ret in log["ret"]:
 
 fig = plt.figure(figsize=(12, 12))
 ax = fig.add_subplot(projection="3d")
-ax.scatter(x, y, z, c=range(len(distance)), cmap=matplotlib.colormaps["Greens"])
-plt.show()
-
+ax.scatter(x, y, z, c=range(len(distance)), cmap=matplotlib.colormaps["plasma"])
+# plt.show()
