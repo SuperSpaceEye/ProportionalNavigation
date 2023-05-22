@@ -1,5 +1,9 @@
 # Perfect instant control
 
+import sys
+sys.path.append("..")
+sys.path.append("../ProportionalNavigation")
+sys.path.append("../ProportionalNavigation/fn_3d")
 import ProportionalNavigation.fn_3d as pn
 import matplotlib.pyplot as plt
 import numpy as np

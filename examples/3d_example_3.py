@@ -1,5 +1,9 @@
 # Control through gimbal and pid with angular inertia, lagged observations
 
+import sys
+sys.path.append("..")
+sys.path.append("../ProportionalNavigation")
+sys.path.append("../ProportionalNavigation/fn_3d")
 import ProportionalNavigation.fn_3d as pn
 import matplotlib.pyplot as plt
 from simple_pid import PID  # https://pypi.org/project/simple-pid/
