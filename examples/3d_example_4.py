@@ -28,7 +28,7 @@ def get_angles(v):
     return yaw, pitch
 
 import matplotlib
-#matplotlib.use("GTK3Agg")
+matplotlib.use("GTK3Agg")
 
 sqrt = math.sqrt
 t = 0
@@ -55,7 +55,7 @@ actual_target = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([0, 100, 0]), ta
 lagged_target = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([0, 100, 0]), target_v)
 
 dt = 1. / 20
-N = 5
+N = 3
 
 update_actual_every = 1
 
@@ -148,8 +148,13 @@ while True:
     pitch_pid.set_starting(new_pitch); yaw_pid.set_starting(new_yaw)
     pitch_gimbal, yaw_gimbal = pitch_pid(pursuer_rot.pitch) / modif, yaw_pid(pursuer_rot.yaw) / modif
 
-    pitch_ar_change = np.sin(pitch_gimbal) * pursuer_acc * dt
-    yaw_ar_change   = np.sin(yaw_gimbal)   * pursuer_acc * dt
+    # actual_pursuer_acc = _clamp(pursuer_acc * 1./(np.sqrt(nL.dot(nL))), (g, pursuer_acc))
+    # actual_pursuer_acc = _clamp(pursuer_acc * (np.sqrt(nL.dot(nL)))/1., (g, pursuer_acc))
+    actual_pursuer_acc = pursuer_acc
+    print(actual_pursuer_acc, np.sqrt(nL.dot(nL)))
+
+    pitch_ar_change = np.sin(pitch_gimbal) * actual_pursuer_acc * dt
+    yaw_ar_change   = np.sin(yaw_gimbal)   * actual_pursuer_acc * dt
 
     # lagged_pursuer_rot.pitch += pitch_ar + pitch_ar_change
     # lagged_pursuer_rot.yaw   += yaw_ar   + yaw_ar_change

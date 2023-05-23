@@ -17,7 +17,7 @@ if __name__ == "__main__":
     g = 10
 
     pursuer = pn.HeadingVelocity3d(np.deg2rad(45), 0, np.array([0, 0, 0]), g * 3)
-    target = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([100, 100, 100]), g*0)
+    target = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([100, 100, 100]), g*1)
     dt = 1. / 20
     N = 5
 
