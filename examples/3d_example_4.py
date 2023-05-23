@@ -190,8 +190,7 @@ while True:
     pitch_ar += pitch_ar_change
     yaw_ar   += yaw_ar_change
 
-    pursuer_rot.V = pursuer_acc * abs(np.cos(pitch_gimbal) * np.cos(yaw_gimbal))
-
+    pursuer_rot.V = actual_pursuer_acc * abs(np.cos(pitch_gimbal) * np.cos(yaw_gimbal))
     pursuer_physic.vel = (pursuer_physic.vel + pursuer_rot.vel * dt) * (1 - drag*dt)
 
     change_ticks += 1

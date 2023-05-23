@@ -28,3 +28,16 @@ def ZEM_3d(pursuer, target, N=3):
         "ZEM_i": ZEM_i,
         "ZEM_n": ZEM_n,
     }
+
+def true_3d(pursuer, target, N=3):
+    dR = target.pos - pursuer.pos
+    dV = target.vel - pursuer.vel
+
+    LOS = np.array((
+        (dR[0]*dV[2] - dR[2]*dV[0])/(dR.dot(dR)),
+        (dR[0]*dV[1] - dR[1]*dV[0])/(dR.dot(dR)),
+    ))
+
+    Vc = -(dR.dot(dV))/np.sqrt(dR.dot(dR))
+
+    return N * Vc * LOS
