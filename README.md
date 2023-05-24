@@ -2,6 +2,7 @@
 2d and 3d functions for proportional navigation. Based of https://github.com/iwishiwasaneagle/proportional_navigation and implemented functions from https://www.youtube.com/watch?v=02APHAyHRMI&list=PLcmbTy9X3gXt02z1wNy4KF5ui0tKxdQm7&index=1
 ## Info
 Input should be in an inertial frame already.
+It's kinda broken and very WIP so don't use it
 
 
 ### 2D functions
