@@ -10,7 +10,7 @@ def ZEM_3d(pursuer, target, N=3):
     R = np.sqrt(dR.dot(dR))
     V = np.sqrt(dV.dot(dV))
 
-    if V == 0: V = 1e16  # if target is stationary and initial speed is 0
+    if V == 0: V = 1e-16  # if target is stationary and initial speed is 0
 
     t_go = R / V  # time to go
 
@@ -29,19 +29,10 @@ def ZEM_3d(pursuer, target, N=3):
         "ZEM_n": ZEM_n,
     }
 
-def true_3d(pursuer, target, N=3):
-    # dR = target.pos - pursuer.pos
-    # dV = target.vel - pursuer.vel
-    #
-    # LOS = np.array((
-    #     (dR[0]*dV[2] - dR[2]*dV[0])/(dR.dot(dR)),
-    #     (dR[0]*dV[1] - dR[1]*dV[0])/(dR.dot(dR)),
-    # ))
-    #
-    # Vc = -(dR.dot(dV))/np.sqrt(dR.dot(dR))
-    #
-    # return N * Vc * LOS
 
+
+#ai made this code, i have no idea how this works but it does
+def ai_true_3d(pursuer, target, N=3):
     if N <= 0: raise RuntimeError("Invalid N parameter")
 
     dR = target.pos - pursuer.pos
@@ -51,9 +42,9 @@ def true_3d(pursuer, target, N=3):
     R = np.sqrt(R_squared)
 
     V = np.sqrt(dV.dot(dV))
+    if V == 0: V = 1e-16  # if target is stationary and initial speed is 0
     t_go = R / V
 
-    V_c = R / t_go
     psi_c = np.arctan2(dR[1], dR[0])
     theta_c = np.arctan2(np.sqrt(dR[0] ** 2 + dR[1] ** 2), dR[2])
 
@@ -61,7 +52,11 @@ def true_3d(pursuer, target, N=3):
     LOS_rate_theta = (R * dV[2] - dR[2] * (dR[0] * dV[0] + dR[1] * dV[1]) / np.sqrt(
         dR[0] ** 2 + dR[1] ** 2) ** 2) / R_squared
 
-    psi_cmd = psi_c - np.arctan2(N * LOS_rate_psi, V_c)
-    theta_cmd = theta_c - np.arctan2(N * LOS_rate_theta, V_c)
+    psi_cmd = psi_c - np.arctan2(N * LOS_rate_psi, V)
+    theta_cmd = theta_c - np.arctan2(N * LOS_rate_theta, V)
 
-    return psi_cmd, theta_cmd
+    return {"psi":psi_cmd,
+            "theta":theta_cmd,
+            "R":R,
+            "t_go":t_go
+            }

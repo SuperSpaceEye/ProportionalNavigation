@@ -26,7 +26,7 @@ if __name__ == "__main__":
     pursuer = pn.HeadingVelocity3d(np.deg2rad(45), 0, np.array([0, 0, 0]), g * 3)
     target = pn.HeadingVelocity3d(np.deg2rad(0), 0, np.array([-100, -100, -100]), g*1)
     dt = 1. / 20
-    N = 5
+    N = 3
 
     max_sim_time = 20
 
@@ -38,7 +38,7 @@ if __name__ == "__main__":
         nL = ret['nL']
         R = ret['R']
 
-        psi_cmd, theta_cmd = pn.true_3d(pursuer, target, N)
+        psi_cmd, theta_cmd = pn.ai_true_3d(pursuer, target, N)
 
         t = t + dt
         if R <= 5 or t > max_sim_time:
@@ -52,7 +52,7 @@ if __name__ == "__main__":
         v_psi = pursuer.V * np.array([np.cos(psi_cmd), np.sin(psi_cmd), 0])
         v_theta = pursuer.V * np.array([np.sin(theta_cmd) * np.cos(psi_cmd), np.sin(theta_cmd) * np.sin(psi_cmd), np.cos(theta_cmd)])
 
-        a_cmd = (v_psi + v_theta - pursuer.vel) / dt
+        a_cmd = (v_psi + v_theta - pursuer.vel)
 
         pursuer.vel += a_cmd * dt
 
