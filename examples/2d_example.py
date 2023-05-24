@@ -17,7 +17,7 @@ if __name__ == "__main__":
     g = 10
 
     pursuer = pn.HeadingVelocity2d(np.deg2rad(45), 0, 0, g * 3)
-    target = pn.HeadingVelocity2d(np.deg2rad(180), 100, -50, g)
+    target = pn.HeadingVelocity2d(np.deg2rad(180), 100, 50, g)
     dt = 1. / 20
     N = 4
 
@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
     log = {'pursuer': [], 'target': []}
     while True:
-        ret = pn.ZEM_2d(pursuer, target, N)
+        ret = pn.true_2d(pursuer, target, N)
         nL = ret['nL']
         R = ret['R']
 
